@@ -30,6 +30,6 @@ void fastShiftOut(uint8_t t, uint8_t u, uint8_t v, uint8_t w){
     Buffer = ((t & musk[i]) >> 2) | ((u & musk[i]) >> 3) | ((v & musk[i]) >> 4) | ((w & musk[i]) >> 5);
     PORTD  = Buffer;
     Buffer = Buffer | 0b01000000;
-    PORTD  = Buffer & 0b00111111;
+    PORTD  = Buffer & 0b00111100;
   }
 }
