@@ -24,6 +24,22 @@ void setup() {
 void loop() {
 }
 
+void 1pulseMode() {
+  
+}
+
+void 3pulesMode() {
+  
+}
+
+void 5pulseMode() {
+  
+}
+
+void unsynchroMode() {
+  
+}
+
 void fastShiftOut(uint8_t t, uint8_t u, uint8_t v, uint8_t w){
   //MSBから順にラッチクロック, クロック,　triWave, U, V, W:
   for(uint8_t i = 0; i < 8; ){
