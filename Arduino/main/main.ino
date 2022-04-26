@@ -1,51 +1,32 @@
-#define hoge hoge
-const float Pi = 3.1416
-uint8_t sinWave[720];
-uint8_t triWave[360];
-const uint8_t musk[8] = {0b10000000, 0b01000000, 0b00100000, 0b00010000, 0b00001000, 0b00000100, 0b00000010, 0b00000001};
-const uint8_t pinMusk = 0b11111100;
-      uint8_t Buffer  = 0b00000000;
+/*
+ * 使用するボードはArduino Mega 2560です
+ * K, A, C, LPORTに8bit R-2R DACを接続し、コンパレータに入力して正弦波・三角波をハードウェア的に実現します
+ */
+
+#define DDR_ALLOUTPUT 0b11111111
+#define BaudRate        115200
+
+uint8_t sinWave[360];
 
 void setup() {
-  for(uint16_t i = 0; i < 360; i++){
-    sinWave[i] = (128 * sin(Pi / (180 * i) + 1)) + 128;
-    sinWave[i + 360] = sinWave[i];
-    if(i < 90){
-      triWave[i] = (128 * (90 / i));
-    }else if(i < 270){
-      triWave[i] = (128 * (90 / (270 - i)) + 128);
-    }else{
-      triWave[i] = (128 * (90 / (i - 270)) + 128);
-    }
+  Serial.begin(BaudRate);
+
+  DDRK = DDR_ALLOUTPUT;  //三角波出力ポート:
+  DDRA = DDR_ALLOUTPUT;  //U相正弦波出力ポート:
+  DDRC = DDR_ALLOUTPUT;  //V相正弦波出力ポート:
+  DDRL = DDR_ALLOUTPUT;  //W相正弦波出力ポート:
+
+  for(uint16_t i = 0; i < sizeof(sinWave); i++){
+    float theta = i * (PI / 180);
+    sinWave[i]  = floor((sin(theta) * 127.9) + 128);
+    Serial.println("sinWave[" + String(i) + "] = " + String(sinWave[i]));
   }
-  DDRD = pinMusk;
 }
 
 void loop() {
-}
-
-void 1pulseMode() {
-  
-}
-
-void 3pulesMode() {
-  
-}
-
-void 5pulseMode() {
-  
-}
-
-void unsynchroMode() {
-  
-}
-
-void fastShiftOut(uint8_t t, uint8_t u, uint8_t v, uint8_t w){
-  //MSBから順にラッチクロック, クロック,　triWave, U, V, W:
-  for(uint8_t i = 0; i < 8; ){
-    Buffer = ((t & musk[i]) >> 2) | ((u & musk[i]) >> 3) | ((v & musk[i]) >> 4) | ((w & musk[i]) >> 5);
-    PORTD  = Buffer;
-    Buffer = Buffer | 0b01000000;
-    PORTD  = Buffer & 0b00111100;
+  //とりあえずD-PORTから60Hz正弦波を出力させる:
+  for(uint16_t i = 0; i < sizeof(sinWave); i++){
+    PORTK = sinWave[i];
+    delayMicroseconds(46);
   }
 }
