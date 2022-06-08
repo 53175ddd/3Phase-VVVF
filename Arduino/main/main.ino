@@ -20,12 +20,18 @@ void setup() {
   DDRC = DDR_ALLOUTPUT;  //V相正弦波出力ポート:
   DDRL = DDR_ALLOUTPUT;  //W相正弦波出力ポート:
 
-  for(uint16_t i = 0; i < sizeof(sinWave); i++){
+  for(uint16_t i = 0; i < sizeof(sinWave); i++) {
     sinWave[i] = (sin(Tau / sizeof(sinWave)) * 127.75) + 128;
     Serial.println("sinWave[" + String(i) + "] = " + string(sinWave[i]));
   }
 }
 
 void loop() {
+  
+}
+
+void phaseOut(uint8_t mode, uint16_t phase) {
+  //mode  : pulse mode
+  //phase : wave's phase 0 - 999 ?
   
 }
