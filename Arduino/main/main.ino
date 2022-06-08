@@ -1,12 +1,16 @@
 /*
  * 使用するボードはArduino Mega 2560です
- * K, A, C, LPORTに8bit R-2R DACを接続し、コンパレータに入力して正弦波・三角波をハードウェア的に実現します
+ * K, A, C, LPORTに8bit R-2R DACを接続し、コンパレータに入力して正弦波・三角波比較をハードウェア的に実現します
  */
+
+#include <TimerOne.h>
 
 #define DDR_ALLOUTPUT 0b11111111
 #define BaudRate        115200
 
-uint8_t sinWave[360];
+float Tau = 2 * PI;
+
+uint8_t sinWave[1000];
 
 void setup() {
   Serial.begin(BaudRate);
@@ -17,16 +21,11 @@ void setup() {
   DDRL = DDR_ALLOUTPUT;  //W相正弦波出力ポート:
 
   for(uint16_t i = 0; i < sizeof(sinWave); i++){
-    float theta = i * (PI / 180);
-    sinWave[i]  = floor((sin(theta) * 127.9) + 128);
-    Serial.println("sinWave[" + String(i) + "] = " + String(sinWave[i]));
+    sinWave[i] = (sin(Tau / sizeof(sinWave)) * 127.75) + 128;
+    Serial.println("sinWave[" + String(i) + "] = " + string(sinWave[i]));
   }
 }
 
 void loop() {
-  //とりあえずD-PORTから60Hz正弦波を出力させる:
-  for(uint16_t i = 0; i < sizeof(sinWave); i++){
-    PORTK = sinWave[i];
-    delayMicroseconds(46);
-  }
+  
 }
