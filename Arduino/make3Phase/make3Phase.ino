@@ -7,6 +7,7 @@ float Tau = 2 * PI;
 uint8_t uSin[waveVol];
 uint8_t vSin[waveVol];
 uint8_t wSin[waveVol];
+uint8_t cTri[waveVol];
 
 void setup() {
   Serial.begin(BaudRate);
@@ -29,6 +30,18 @@ void setup() {
     Serial.print(String(wSin[i]) + ",");
   }
   Serial.println();
+  for(uint16_t i = 0; i < 10; i++) {
+    for(uint8_t o = 0; o < 50; o++) {
+      uint16_t phase = o + 20 * i * 2;
+      cTri[phase] = (255 / 50) * o;
+    Serial.print(String(cTri[phase]) + ",");
+    }
+    for(uint8_t o = 50; o > 0; o--) {
+      uint16_t phase = (o + 1) + 20 * i * 2;
+      cTri[phase] = (255 / 50) * o;
+    Serial.print(String(cTri[phase]) + ",");
+    }
+  }
 }
 
 void loop() {
