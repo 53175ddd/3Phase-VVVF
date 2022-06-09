@@ -7,10 +7,28 @@
 
 #define DDR_ALLOUTPUT 0b11111111
 #define BaudRate        115200
+#define waveVol         1000
+#define triWaveFreq     20        //必ず2の倍数を指定:
+
+#define analogPort      6
 
 float Tau = 2 * PI;
 
-uint8_t sinWave[1000];
+uint8_t uSin[waveVol];
+uint8_t vSin[waveVol];
+uint8_t wSin[waveVol];
+uint8_t cTri[waveVol];
+
+uint16_t sentPhase = 0;
+
+void sendTriWave() {
+  PORTK = cTri[sentPhase];
+  sentPhase++;
+
+  if(sentPhase >= waveVol) {
+    sentPhase = 0;
+  }
+}
 
 void setup() {
   Serial.begin(BaudRate);
@@ -20,18 +38,52 @@ void setup() {
   DDRC = DDR_ALLOUTPUT;  //V相正弦波出力ポート:
   DDRL = DDR_ALLOUTPUT;  //W相正弦波出力ポート:
 
-  for(uint16_t i = 0; i < sizeof(sinWave); i++) {
-    sinWave[i] = (sin(Tau / sizeof(sinWave)) * 127.75) + 128;
-    Serial.println("sinWave[" + String(i) + "] = " + string(sinWave[i]));
+  Timer1.initialize(10);
+  Timer1.attachInterrupt(sendTriWave);
+
+  for(uint16_t i = 0; i < waveVol; i++) {
+    float theta = (i * Tau) / waveVol;
+    uSin[i] = (sin(theta) * 126) + 128;
+    Serial.print(String(uSin[i]) + ",");
+  }
+  Serial.println();
+  for(uint16_t i = 0; i < waveVol; i++) {
+    float theta = ((i * Tau) / waveVol) + (Tau / 3);
+    vSin[i] = (sin(theta) * 126) + 128;
+    Serial.print(String(vSin[i]) + ",");
+  }
+  Serial.println();
+  for(uint16_t i = 0; i < waveVol; i++) {
+    float theta = ((i * Tau) / waveVol) + ((Tau * 2) / 3);
+    wSin[i] = (sin(theta) * 126) + 128;
+    Serial.print(String(wSin[i]) + ",");
+  }
+  Serial.println();
+  for(uint16_t i = 0; i < (triWaveFreq / 2); i++) {
+    for(uint8_t o = 0; o < (waveVol / triWaveFreq); o++) {
+      uint16_t phase = o + triWaveFreq * i * 2;
+      cTri[phase] = (255 / (waveVol / triWaveFreq)) * o;
+    Serial.print(String(cTri[phase]) + ",");
+    }
+    for(uint8_t o = (waveVol / triWaveFreq); o > 0; o--) {
+      uint16_t phase = (o + 1) + triWaveFreq * i * 2;
+      cTri[phase] = (255 / (waveVol / triWaveFreq)) * o;
+    Serial.print(String(cTri[phase]) + ",");
+    }
   }
 }
 
 void loop() {
-  
+  for(uint16_t i = 0; i < waveVol; i++) {
+    phaseOut(i);
+
+    delayMicroseconds(map(analogRead(analogPort)), 0, 1023, 50, 1000);
+  }
 }
 
-void phaseOut(uint8_t mode, uint16_t phase) {
-  //mode  : pulse mode
+void phaseOut(uint16_t phase) {
   //phase : wave's phase 0 - 999 ?
-  
+    PORTA = uSin[phase];
+    PORTC = vSin[phase];
+    PORTL = wSin[phase];
 }
