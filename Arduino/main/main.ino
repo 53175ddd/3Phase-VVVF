@@ -71,9 +71,15 @@ void setup() {
     Serial.print(String(cTri[phase]) + ",");
     }
   }
+  uint8_t buff[triWaveFreq / 4)];
   for(uint8_t i = 0; i < (triWaveFreq / 4); i++) {
-    uint8_t buff[triWaveFreq / 4)];
-    //ここで三角波の1/4だけを一旦buffに移し、スイッチさせて最後尾に追加する:
+    buff[i] = cTri[i];
+  }
+  for(uint16_t i = 0; i < (waveVol - (triWaveFreq / 4)); i++) {
+    cTri[i] = cTri[i + (triWaveFreq / 4)];
+  }
+  for(uint16_t i = 0; i < (triWaveFreq / 4); i++) {
+    cTri[i + (waveVol - (triWaveFreq / 4)) + i] = buff[i];
   }
 }
 
