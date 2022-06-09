@@ -8,7 +8,7 @@
 #define DDR_ALLOUTPUT 0b11111111
 #define BaudRate        115200
 #define waveVol         1000
-#define triWaveFreq     20        //必ず2の倍数を指定:
+#define triWaveFreq     20        //必ず4の倍数を指定:
 
 #define analogPort      6
 
@@ -70,6 +70,10 @@ void setup() {
       cTri[phase] = (255 / (waveVol / triWaveFreq)) * o;
     Serial.print(String(cTri[phase]) + ",");
     }
+  }
+  for(uint8_t i = 0; i < (triWaveFreq / 4); i++) {
+    uint8_t buff[triWaveFreq / 4)];
+    //ここで三角波の1/4だけを一旦buffに移し、スイッチさせて最後尾に追加する:
   }
 }
 
