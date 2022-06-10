@@ -7,8 +7,8 @@
 
 #define DDR_ALLOUTPUT   255
 #define BaudRate        115200
-#define waveVol         1000
-#define triWaveFreq     20        //必ず4の倍数を指定:
+#define waveVol         1024
+#define triWaveFreq     12         //必ず4の倍数を指定:
 
 #define analogPort      6
 
@@ -24,6 +24,7 @@ uint16_t sentPhase = 0;
 void sendTriWave() {
   digitalWrite(13, HIGH);
   PORTK = cTri[sentPhase];
+  PORTA = uSin[sentPhase];
   sentPhase++;
 
   if(sentPhase >= waveVol) {
@@ -45,54 +46,63 @@ void setup() {
   for(uint16_t i = 0; i < waveVol; i++) {
     float theta = (i * Tau) / waveVol;
     uSin[i] = (sin(theta) * 126) + 128;
+  }
+  for(uint16_t i = 0; i < waveVol; i++) {
+    float theta = ((i * Tau) / waveVol) + (Tau / 3);
+    vSin[i] = (sin(theta) * 126) + 128;
+  }
+  for(uint16_t i = 0; i < waveVol; i++) {
+    float theta = ((i * Tau) / waveVol) + ((Tau * 2) / 3);
+    wSin[i] = (sin(theta) * 126) + 128;
+  }
+
+  const uint16_t offset = waveVol / (triWaveFreq * 4);
+
+  for(uint16_t i = 0; i < offset; i++) {
+    cTri[i] = map(i, 0, offset, 128, 255);
+  }
+
+  for(uint16_t i = offset; i < (offset * 3); i++) {
+    cTri[i] = map(i - offset, 0, (offset * 2), 255, 0);
+  }
+
+  for(uint16_t i = (offset * 3); i < (offset * 4); i++) {
+    cTri[i] = map(i - (offset * 3), 0, offset, 0, 127);
+  }
+
+  for(uint16_t i = 0; i < (waveVol - (offset * 4)); i++) {
+    cTri[i + (offset * 4)] = cTri[i];
+  }
+
+  for(uint16_t i = 0; i < waveVol; i++) {
     Serial.print(String(uSin[i]) + ",");
   }
   Serial.println();
   for(uint16_t i = 0; i < waveVol; i++) {
-    float theta = ((i * Tau) / waveVol) + (Tau / 3);
-    vSin[i] = (sin(theta) * 126) + 128;
     Serial.print(String(vSin[i]) + ",");
   }
   Serial.println();
   for(uint16_t i = 0; i < waveVol; i++) {
-    float theta = ((i * Tau) / waveVol) + ((Tau * 2) / 3);
-    wSin[i] = (sin(theta) * 126) + 128;
     Serial.print(String(wSin[i]) + ",");
   }
   Serial.println();
-  for(uint16_t i = 0; i < (triWaveFreq / 2); i++) {
-    for(uint8_t o = 0; o < (waveVol / triWaveFreq); o++) {
-      uint16_t phase = o + triWaveFreq * i * 2;
-      cTri[phase] = (255 / (waveVol / triWaveFreq)) * o;
-    Serial.print(String(cTri[phase]) + ",");
-    }
-    for(uint8_t o = (waveVol / triWaveFreq); o > 0; o--) {
-      uint16_t phase = (o + 1) + triWaveFreq * i * 2;
-      cTri[phase] = (255 / (waveVol / triWaveFreq)) * o;
-    Serial.print(String(cTri[phase]) + ",");
-    }
+  for(uint16_t i = 0; i < waveVol; i++) {
+    Serial.print(String(cTri[i]) + ",");
   }
-  uint8_t buff[triWaveFreq / 4];
-  for(uint8_t i = 0; i < (triWaveFreq / 4); i++) {
-    buff[i] = cTri[i];
-  }
-  for(uint16_t i = 0; i < (waveVol - (triWaveFreq / 4)); i++) {
-    cTri[i] = cTri[i + (triWaveFreq / 4)];
-  }
-  for(uint16_t i = 0; i < (triWaveFreq / 4); i++) {
-    cTri[i + (waveVol - (triWaveFreq / 4)) + i] = buff[i];
-  }
+  Serial.println();
 
   Timer1.initialize(10);
   Timer1.attachInterrupt(sendTriWave);
 }
 
 void loop() {
+  /*
   for(uint16_t i = 0; i < waveVol; i++) {
     phaseOut(i);
 
     delayMicroseconds(map(analogRead(analogPort), 0, 1023, 50, 1000));
   }
+   */
 }
 
 void phaseOut(uint16_t phase) {
