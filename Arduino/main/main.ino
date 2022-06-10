@@ -71,7 +71,7 @@ void setup() {
     Serial.print(String(cTri[phase]) + ",");
     }
   }
-  uint8_t buff[triWaveFreq / 4)];
+  uint8_t buff[triWaveFreq / 4];
   for(uint8_t i = 0; i < (triWaveFreq / 4); i++) {
     buff[i] = cTri[i];
   }
@@ -87,7 +87,7 @@ void loop() {
   for(uint16_t i = 0; i < waveVol; i++) {
     phaseOut(i);
 
-    delayMicroseconds(map(analogRead(analogPort)), 0, 1023, 50, 1000);
+    delayMicroseconds(map(analogRead(analogPort), 0, 1023, 50, 1000));
   }
 }
 
