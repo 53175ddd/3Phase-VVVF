@@ -5,7 +5,7 @@
 
 #include <TimerOne.h>
 
-#define DDR_ALLOUTPUT 0b11111111
+#define DDR_ALLOUTPUT   255
 #define BaudRate        115200
 #define waveVol         1000
 #define triWaveFreq     20        //必ず4の倍数を指定:
@@ -22,24 +22,25 @@ uint8_t cTri[waveVol];
 uint16_t sentPhase = 0;
 
 void sendTriWave() {
+  digitalWrite(13, HIGH);
   PORTK = cTri[sentPhase];
   sentPhase++;
 
   if(sentPhase >= waveVol) {
     sentPhase = 0;
   }
+  digitalWrite(13,  LOW);
 }
 
 void setup() {
+  pinMode(13, OUTPUT);
+
   Serial.begin(BaudRate);
 
   DDRK = DDR_ALLOUTPUT;  //三角波出力ポート:
   DDRA = DDR_ALLOUTPUT;  //U相正弦波出力ポート:
   DDRC = DDR_ALLOUTPUT;  //V相正弦波出力ポート:
   DDRL = DDR_ALLOUTPUT;  //W相正弦波出力ポート:
-
-  Timer1.initialize(10);
-  Timer1.attachInterrupt(sendTriWave);
 
   for(uint16_t i = 0; i < waveVol; i++) {
     float theta = (i * Tau) / waveVol;
@@ -81,6 +82,9 @@ void setup() {
   for(uint16_t i = 0; i < (triWaveFreq / 4); i++) {
     cTri[i + (waveVol - (triWaveFreq / 4)) + i] = buff[i];
   }
+
+  Timer1.initialize(10);
+  Timer1.attachInterrupt(sendTriWave);
 }
 
 void loop() {
