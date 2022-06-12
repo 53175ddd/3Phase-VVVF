@@ -8,7 +8,7 @@
 #define DDR_ALLOUTPUT   255
 #define BaudRate        115200
 #define waveVol         1024
-#define triWaveFreq     12         //必ず4の倍数を指定:
+#define triWaveFreq     16         //必ず4の倍数を指定:
 
 #define analogPort      6
 
