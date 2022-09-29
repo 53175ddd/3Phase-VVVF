@@ -2,7 +2,7 @@
 #define V_OUT D1
 #define W_OUT D2
 
-#define delayTime 125
+#define delayTime 50
 
 #define DEBUG true
 
@@ -34,9 +34,9 @@ void setup() {
 
 void loop() {
   // 周期実行用ハンドラ的な変数:
-  const uint16_t times = millis() % 10;
+  const uint16_t times = millis() % delayTime;
 
-  if(times == 0) {  // timesを10で割ったあまりが0になるとき, つまり10msec周期で実行:
+  if(times == 0) {  // timesをdelayTimeで割ったあまりが0になるとき, つまりdelayTimeミリ秒周期で実行:
     s_pwms wave = {sin( (phase * Tau) / 128)                  * 127 + 128,
                    sin(((phase * Tau) / 128) + (    Tau / 3)) * 127 + 128,
                    sin(((phase * Tau) / 128) + (2 * Tau / 3)) * 127 + 128};
