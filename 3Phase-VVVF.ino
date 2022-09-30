@@ -52,29 +52,29 @@ void loop() {
     if(DEBUG) {  // 3相PWM数値出力:
       // U相デバッグ:
             if(( 0 <= wave.u) && (wave.u <=  9)) {
-        Serial.print("  "); Serial.print(wave.u); Serial.print(", ");
+        sprintf("  "); sprintf(wave.u); sprintf(", ");
       }else if((10 <= wave.u) && (wave.u <= 99)) {
-        Serial.print(" ");  Serial.print(wave.u); Serial.print(", ");
+        sprintf(" ");  sprintf(wave.u); sprintf(", ");
       }else{
-                            Serial.print(wave.u); Serial.print(", ");
+                       sprintf(wave.u); sprintf(", ");
       }
     
       // V相デバッグ:
             if(( 0 <= wave.v) && (wave.v <=  9)) {
-        Serial.print("  "); Serial.print(wave.v); Serial.print(", ");
+        sprintf("  "); sprintf(wave.v); sprintf(", ");
       }else if((10 <= wave.v) && (wave.v <= 99)) {
-        Serial.print(" ");  Serial.print(wave.v); Serial.print(", ");
+        sprintf(" ");  sprintf(wave.v); sprintf(", ");
       }else{
-                            Serial.print(wave.v); Serial.print(", ");
+                       sprintf(wave.v); sprintf(", ");
       }
     
       // W相デバッグ:
             if(( 0 <= wave.w) && (wave.w <=  9)) {
-        Serial.print("  "); Serial.print(wave.w); Serial.println();
+        sprintf("  "); sprintf(wave.w); sprintf();
       }else if((10 <= wave.w) && (wave.w <= 99)) {
-        Serial.print(" ");  Serial.print(wave.w); Serial.println();
+        sprintf(" ");  sprintf(wave.w); sprintf();
       }else{
-                            Serial.print(wave.w); Serial.println();
+                       sprintf(wave.w); sprintf();
       }
     }
   }
