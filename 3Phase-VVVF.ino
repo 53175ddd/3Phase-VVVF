@@ -2,9 +2,9 @@
 #define V_OUT D1
 #define W_OUT D2
 
-#define delayTime 50
+#define delayTime 180
 
-#define DEBUG true
+#define DEBUG false
 
 const float  Tau = PI * 2;  // τ = 2π:
 const float qTau = PI / 2;  // Tauの1/4 (Quarter):
@@ -33,51 +33,49 @@ void setup() {
 }
 
 void loop() {
-  // 周期実行用ハンドラ的な変数:
-  const uint16_t times = millis() % delayTime;
-
-  if(times == 0) {  // timesをdelayTimeで割ったあまりが0になるとき, つまりdelayTimeミリ秒周期で実行:
-    s_pwms wave = {sin( (phase * Tau) / 128)                  * 127 + 128,
-                   sin(((phase * Tau) / 128) + (    Tau / 3)) * 127 + 128,
-                   sin(((phase * Tau) / 128) + (2 * Tau / 3)) * 127 + 128};
+  s_pwms wave = {sin(((phase * Tau) / 128) + (1 * Tau / 3)) * 127 + 128,
+                 sin(((phase * Tau) / 128) + (2 * Tau / 3)) * 127 + 128,
+                 sin(((phase * Tau) / 128) + (3 * Tau / 3)) * 127 + 128};
+  if(phase > 127) {
+    phase = 0;
+  }else {
     phase++;
-    if(phase > 127) {
-      phase = 0;
+  }
+
+  analogWrite(U_OUT, wave.u);
+  analogWrite(V_OUT, wave.v);
+  analogWrite(W_OUT, wave.w);
+
+  if(DEBUG) {  // 3相PWM数値出力:
+    // U相デバッグ:
+          if(( 0 <= wave.u) && (wave.u <=  9)) {
+      Serial.print("  "); Serial.print(wave.u); Serial.print(", ");
+    }else if((10 <= wave.u) && (wave.u <= 99)) {
+      Serial.print(" ");  Serial.print(wave.u); Serial.print(", ");
+    }else{
+                          Serial.print(wave.u); Serial.print(", ");
     }
-
-    analogWrite(U_OUT, wave.u);
-    analogWrite(V_OUT, wave.v);
-    analogWrite(W_OUT, wave.w);
-
-    if(DEBUG) {  // 3相PWM数値出力:
-      // U相デバッグ:
-            if(( 0 <= wave.u) && (wave.u <=  9)) {
-        sprintf("  "); sprintf(wave.u); sprintf(", ");
-      }else if((10 <= wave.u) && (wave.u <= 99)) {
-        sprintf(" ");  sprintf(wave.u); sprintf(", ");
-      }else{
-                       sprintf(wave.u); sprintf(", ");
-      }
-    
-      // V相デバッグ:
-            if(( 0 <= wave.v) && (wave.v <=  9)) {
-        sprintf("  "); sprintf(wave.v); sprintf(", ");
-      }else if((10 <= wave.v) && (wave.v <= 99)) {
-        sprintf(" ");  sprintf(wave.v); sprintf(", ");
-      }else{
-                       sprintf(wave.v); sprintf(", ");
-      }
-    
-      // W相デバッグ:
-            if(( 0 <= wave.w) && (wave.w <=  9)) {
-        sprintf("  "); sprintf(wave.w); sprintf();
-      }else if((10 <= wave.w) && (wave.w <= 99)) {
-        sprintf(" ");  sprintf(wave.w); sprintf();
-      }else{
-                       sprintf(wave.w); sprintf();
-      }
+  
+    // V相デバッグ:
+          if(( 0 <= wave.v) && (wave.v <=  9)) {
+      Serial.print("  "); Serial.print(wave.v); Serial.print(", ");
+    }else if((10 <= wave.v) && (wave.v <= 99)) {
+      Serial.print(" ");  Serial.print(wave.v); Serial.print(", ");
+    }else{
+                          Serial.print(wave.v); Serial.print(", ");
+    }
+  
+    // W相デバッグ:
+          if(( 0 <= wave.w) && (wave.w <=  9)) {
+      Serial.print("  "); Serial.print(wave.w); Serial.println();
+    }else if((10 <= wave.w) && (wave.w <= 99)) {
+      Serial.print(" ");  Serial.print(wave.w); Serial.println();
+    }else{
+                          Serial.print(wave.w); Serial.println();
     }
   }
+
+  delayMicroseconds(delayTime);
 }
 
 float tri(const float phase) {
