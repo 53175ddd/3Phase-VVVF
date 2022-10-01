@@ -2,7 +2,10 @@
 #define V_OUT D1
 #define W_OUT D2
 
-#define DEBUG true
+#define DEBUG false
+
+// MODE true : 正弦波PWM, false : 三角波比較PWM
+#define MODE  false
 
 const float  Tau = PI * 2;  // τ = 2π:
 const float qTau = PI / 2;  // Tauの1/4 (Quarter):
@@ -10,15 +13,16 @@ const float qTau = PI / 2;  // Tauの1/4 (Quarter):
 uint16_t amp   = 0;  // 波形の振幅:
 uint16_t phase = 0;  // 出力波形の位相:
 uint16_t times = 0;  // 遅延関数に渡す引数:
+uint8_t  steps = 0;  // 出力ステップを保存:
 
-struct s_phases {  // 生成した波形の値の保存に使用:
+struct s_wave {      // 生成した波形の値の保存に使用:
   float u;    // U相正弦波:
   float v;    // V相正弦波:
   float w;    // W相正弦波:
   float t;    // 搬送三角波:
 };
 
-struct s_pwms {    // 出力する信号の保存に使用:
+struct s_pwm {       // 出力する信号の保存に使用:
   uint8_t u;  // U相PWM出力値:
   uint8_t v;  // V相PWM出力値:
   uint8_t w;  // W相PWM出力値:
@@ -31,31 +35,62 @@ void setup() {
   pinMode(V_OUT, OUTPUT);
   pinMode(W_OUT, OUTPUT);
 
-  amp   = 120;
   times = 150;
-}
+  amp   = 127;
 
-void loop() {
-  s_pwms   wave = {sin(((phase * Tau) / 128) + (1 * Tau / 3)) * amp + amp,
-                   sin(((phase * Tau) / 128) + (2 * Tau / 3)) * amp + amp,
-                   sin(((phase * Tau) / 128) + (3 * Tau / 3)) * amp + amp};
-  if(phase > 127) {
-    phase = 0;
-  }else {
-    phase++;
-  }
-
-  analogWrite(U_OUT, wave.u);
-  analogWrite(V_OUT, wave.v);
-  analogWrite(W_OUT, wave.w);
-
-  if(DEBUG) {  // 3相PWM数値出力:
-    char buff[30];
-    sprintf(buff, "%3d, %3d, %3d", wave.u, wave.v, wave.w);
+  for(uint8_t i = 0; i < 128; i++) {
+    char  buff[31];
+    float dat = tri((i * Tau) / 128);
+    sprintf(buff, "count [%3d] = %f", i, dat);
     Serial.println(buff);
   }
 
-  delayMicroseconds(times);
+//  while(true);
+}
+
+void loop() {
+  s_wave wave = {sin(((phase * Tau) / 128) + (1 * Tau / 3)),
+                 sin(((phase * Tau) / 128) + (2 * Tau / 3)),
+                 sin(((phase * Tau) / 128) + (3 * Tau / 3)),
+                 tri ((phase * Tau) * 12 / 128)};
+
+  if(MODE) {  // 正弦波信号をPWMで生成:
+    s_pwm  pwms = {wave.u * amp + amp,
+                   wave.v * amp + amp,
+                   wave.w * amp + amp};
+    if(phase > 127) {
+      phase = 0;
+    }else {
+      phase++;
+    }
+  
+    analogWrite(U_OUT, pwms.u);
+    analogWrite(V_OUT, pwms.v);
+    analogWrite(W_OUT, pwms.w);
+  
+    if(DEBUG) {  // 3相PWM数値出力:
+      char buff[16];
+      sprintf(buff, "%3d, %3d, %3d", pwms.u, pwms.v, pwms.w);
+      Serial.println(buff);
+    }
+  
+    delayMicroseconds(times);
+  }else {     // 三角波比較PWM:
+    s_pwm pwms = {wave.u > wave.t ? 1 : 0,
+                  wave.v > wave.t ? 1 : 0,
+                  wave.w > wave.t ? 1 : 0};
+
+    digitalWrite(U_OUT, pwms.u);
+    digitalWrite(V_OUT, pwms.v);
+    digitalWrite(W_OUT, pwms.w);
+
+    if(phase > 127) {
+      phase = 0;
+    }else {
+      phase++;
+    }
+    delayMicroseconds(times);
+  }
 }
 
 float tri(const float phase) {
