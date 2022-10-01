@@ -2,8 +2,6 @@
 #define V_OUT D1
 #define W_OUT D2
 
-#define delayTime 200
-
 #define DEBUG true
 
 const float  Tau = PI * 2;  // τ = 2π:
@@ -11,15 +9,16 @@ const float qTau = PI / 2;  // Tauの1/4 (Quarter):
 
 uint16_t amp   = 0;  // 波形の振幅:
 uint16_t phase = 0;  // 出力波形の位相:
+uint16_t times = 0;  // 遅延関数に渡す引数:
 
-struct s_phases {    // 生成した波形の値の保存に使用:
+struct s_phases {  // 生成した波形の値の保存に使用:
   float u;    // U相正弦波:
   float v;    // V相正弦波:
   float w;    // W相正弦波:
   float t;    // 搬送三角波:
 };
 
-struct s_pwms {      // 出力する信号の保存に使用:
+struct s_pwms {    // 出力する信号の保存に使用:
   uint8_t u;  // U相PWM出力値:
   uint8_t v;  // V相PWM出力値:
   uint8_t w;  // W相PWM出力値:
@@ -32,7 +31,8 @@ void setup() {
   pinMode(V_OUT, OUTPUT);
   pinMode(W_OUT, OUTPUT);
 
-  amp = 120;
+  amp   = 120;
+  times = 150;
 }
 
 void loop() {
@@ -50,12 +50,12 @@ void loop() {
   analogWrite(W_OUT, wave.w);
 
   if(DEBUG) {  // 3相PWM数値出力:
-    char buff[16];
+    char buff[30];
     sprintf(buff, "%3d, %3d, %3d", wave.u, wave.v, wave.w);
     Serial.println(buff);
   }
 
-  delayMicroseconds(delayTime);
+  delayMicroseconds(times);
 }
 
 float tri(const float phase) {
