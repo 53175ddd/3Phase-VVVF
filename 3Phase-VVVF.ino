@@ -4,7 +4,7 @@
 
 #define delayTime 180
 
-#define DEBUG false
+#define DEBUG true
 
 const float  Tau = PI * 2;  // τ = 2π:
 const float qTau = PI / 2;  // Tauの1/4 (Quarter):
@@ -33,9 +33,9 @@ void setup() {
 }
 
 void loop() {
-  s_pwms wave = {sin(((phase * Tau) / 128) + (1 * Tau / 3)) * 127 + 128,
-                 sin(((phase * Tau) / 128) + (2 * Tau / 3)) * 127 + 128,
-                 sin(((phase * Tau) / 128) + (3 * Tau / 3)) * 127 + 128};
+  s_pwms wave = {sin(((phase * Tau) / 128) + (1 * Tau / 3)) * 100 + 128,
+                 sin(((phase * Tau) / 128) + (2 * Tau / 3)) * 100 + 128,
+                 sin(((phase * Tau) / 128) + (3 * Tau / 3)) * 100 + 128};
   if(phase > 127) {
     phase = 0;
   }else {
