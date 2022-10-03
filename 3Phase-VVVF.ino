@@ -5,7 +5,7 @@
 #define DEBUG false
 
 // MODE true : 正弦波PWM, false : 三角波比較PWM
-#define MODE  false
+#define MODE  true
 
 const float  Tau = PI * 2;  // τ = 2π:
 const float qTau = PI / 2;  // Tauの1/4 (Quarter):
@@ -14,6 +14,7 @@ uint16_t amp   = 0;  // 波形の振幅:
 uint16_t phase = 0;  // 出力波形の位相:
 uint16_t times = 0;  // 遅延関数に渡す引数:
 uint8_t  steps = 0;  // 出力ステップを保存:
+uint16_t count = 1;
 
 struct s_wave {      // 生成した波形の値の保存に使用:
   float u;    // U相正弦波:
@@ -35,7 +36,7 @@ void setup() {
   pinMode(V_OUT, OUTPUT);
   pinMode(W_OUT, OUTPUT);
 
-  times = 150;
+  times = 1500;
   amp   = 127;
 
   for(uint8_t i = 0; i < 128; i++) {
@@ -52,7 +53,7 @@ void loop() {
   s_wave wave = {sin(((phase * Tau) / 128) + (1 * Tau / 3)),
                  sin(((phase * Tau) / 128) + (2 * Tau / 3)),
                  sin(((phase * Tau) / 128) + (3 * Tau / 3)),
-                 tri ((phase * Tau) * 12 / 128)};
+                 tri ((phase * Tau) * 6 / 128)};
 
   if(MODE) {  // 正弦波信号をPWMで生成:
     s_pwm  pwms = {wave.u * amp + amp,
@@ -73,8 +74,6 @@ void loop() {
       sprintf(buff, "%3d, %3d, %3d", pwms.u, pwms.v, pwms.w);
       Serial.println(buff);
     }
-  
-    delayMicroseconds(times);
   }else {     // 三角波比較PWM:
     s_pwm pwms = {wave.u > wave.t ? 1 : 0,
                   wave.v > wave.t ? 1 : 0,
@@ -89,7 +88,19 @@ void loop() {
     }else {
       phase++;
     }
-    delayMicroseconds(times);
+  }
+
+  delayMicroseconds(times);
+
+  if(count == 180) {
+    count = 1;
+    if(times < 50) {
+      times = 50;
+    }else {
+      times = times - 10;
+    }
+  }else {
+    count++;
   }
 }
 
