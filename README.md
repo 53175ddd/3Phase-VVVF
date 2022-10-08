@@ -6,7 +6,7 @@
 
 - [3Phase-VVVF.ino](./3Phase-VVVF.ino)
   - Arduinoソースファイル
-- [Xiao_VVVF.uf2](./Xiao_VVVF.uf2)
+- [Xiao_VVVF.uf2](./UF2/Xiao_VVVF.uf2)
   - Xiao RP2040用UF2ファイル
 
 ## 公開予定要素
